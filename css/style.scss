@@ -1,0 +1,172 @@
+$outline: #fa8a5e;
+$outline-secondary: #0d58b7;
+$dark: #0b3a83;
+$button-color: #0c58a7;
+$button-color-dark: #0b3a83;
+
+#spinner:not([hidden]) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#spinner::after {
+  content: "";
+  width: 80px;
+  height: 80px;
+  border: 2px solid #f3f3f3;
+  border-top: 3px solid #f25a41;
+  border-radius: 100%;
+  will-change: transform;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* *1*: make it "untouchable"
+ **/
+
+.is-hidden--off-flow {
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+  z-index: -10; /* *1* */
+  visibility: hidden; /* *1* */
+}
+
+.is-shown--off-flow {
+  opacity: 1;
+  transition: all 0.2s ease-in-out;
+  visibility: visible;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: "brandon-grotesque", sans-serif;
+}
+
+.c-content {
+  padding: 30px;
+  text-align: left;
+  max-width: 650px;
+  margin: 0 auto;
+  font-size: 18px;
+}
+
+div {
+  margin-bottom: 12px;
+}
+
+.l-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  margin: 0 auto;
+  z-index: 2;
+  text-align: center;
+}
+
+.l-modal__shadow {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  display: block;
+  background: #161616;
+  opacity: 0.92;
+  z-index: -1;
+  cursor: pointer;
+}
+
+.l-modal__body {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.c-popup {
+  display: inline-block;
+  text-align: center;
+  background: white;
+  max-width: 700px;
+  max-height: 700px;
+  height: 100%;
+  width: 100%;
+  line-height: 1.48;
+}
+
+.c-popup__img {
+  max-width: 100px;
+  margin: 0 auto;
+  padding: 60px 60px 40px;
+}
+
+.h-img-resp {
+  max-width: 100%;
+}
+
+.c-popup__title {
+  padding-left: 30px;
+  padding-right: 30px;
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-size: 1.4em;
+  color: #3a3a3a;
+  font-weight: normal;
+}
+
+.c-popup__description {
+  font-size: 1.1em;
+  color: #a1a1a1;
+  padding: 0 30px;
+  margin-bottom: 48px;
+}
+
+.button-primary {
+  background: $button-color;
+  background: linear-gradient($button-color, $button-color-dark);
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.4) inset;
+  color: white;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 12px 18px;
+  border-radius: 1px;
+  display: inline-block;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: bold;
+  transition: all 0.2s ease-out;
+}
+
+.button-primary:hover {
+  box-shadow: 0 1px 1px rgba(255, 255, 255, 0.4) inset,
+    0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease-in;
+  color: #f2f2f2;
+}
+
+.align-left {
+  text-align: left;
+  margin-left: 30px;
+}
+.c-popup__note {
+  opacity: 0.2;
+  font-size: 1em;
+  margin-top: 6px;
+  margin-bottom: 60px;
+}

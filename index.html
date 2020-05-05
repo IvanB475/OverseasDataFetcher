@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Document</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.3/xlsx.full.min.js"
+    ></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+      integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body>
+    <input type="file" id="fileUpload" accept=".xls,.xlsx" /><br />
+    <button class="button-primary" type="button" id="uploadExcel">
+      Convert
+    </button>
+    <div hidden id="spinner"></div>
+    <div id="match-list"></div>
+  </body>
+  <script>
+    var selectedFile;
+    var html = [];
+    var newArray = [];
+    document
+      .getElementById("fileUpload")
+      .addEventListener("change", function (event) {
+        selectedFile = event.target.files[0];
+      });
+    document
+      .getElementById("uploadExcel")
+      .addEventListener("click", function () {
+        if (selectedFile) {
+          var fileReader = new FileReader();
+          fileReader.onload = function (event) {
+            var data = event.target.result;
+
+            var workbook = XLSX.read(data, {
+              type: "binary",
+            });
+            workbook.SheetNames.forEach((sheet) => {
+              let rowObject = XLSX.utils.sheet_to_row_object_array(
+                workbook.Sheets[sheet]
+              );
+              let jsonObject = JSON.stringify(rowObject);
+              var newData = JSON.parse(jsonObject);
+              let result = newData.map(({ Broj_paketa }) => Broj_paketa);
+              console.log(result);
+              (async () => {
+                spinner.removeAttribute("hidden");
+                for (let i = 0; i < result.length; i++) {
+                  let value = result[i];
+                  let res = await fetch(
+                    "https://my.overseas.hr/system/api/track-and-trace/get-shipment-data/" +
+                      value
+                  );
+                  let data = await res.json();
+                  newArray.push(data);
+                }
+                spinner.setAttribute("hidden", "");
+                html = newArray
+                  .map(
+                    (match, index) => `
+        <div class="carc card-body mb-1">
+          <a href="#" class="js-modal-show" id="${index}" onClick="MyFunc(this.id)"> <h4> ${
+                      match.Ref2
+                    } </h4> </a> <h4> <span class="text-warning" id="Color${
+                      match.LastShipmentTrace.StatusNumber
+                    }">${match.StatusDescription}</span></h4>
+        </div>
+        <div class="l-modal is-hidden--off-flow js-modal-shopify" id="test${index}">
+      <div class="l-modal__shadow js-modal-hide" id="hide${index}"></div>
+      <div class="c-popup l-modal__body">
+        <div class="align-left"> Broj narudžbe: ${match.ShipmentNumber} </div>
+        <div class="align-right"> Datum slanja: ${match.SentOnDateString} </div>
+        <h5 class="c-popup__title">${match.Ref2}</h5>
+        <p class="c-popup__description"> Trenutno stanje: </p>
+        <h5 class="c-popup__title1" id="align-left${index}"> ${
+                      match.StatusDescription
+                    } </h5>
+        <p class="c-popup__description"> ${
+          match.LastShipmentTrace.ScanDateString
+        }   ${match.LastShipmentTrace.ScanTimeString}</p>
+        <h6 class="c-popup__title">Primatelj: ${match.Consignee.PostalCode} ${
+                      match.Consignee.City
+                    }, ${match.Consignee.Country} </h6>
+          <table class="table">
+              <thead class="c-popup__description_table">
+                  <tr>
+                      <th scope="col"> Datum </th>
+                      <th scope="col"> Vrijeme</th>
+                      <th scope="col"> Status </th>
+                      <th scope="col"> Napomena </th>
+                  </tr>
+        <tbody class="c-popup__description_table"> ${match.Collies[0].Traces.map(
+          (track) =>
+            "<tr><td>" +
+            track.ScanDateString +
+            "</td><td>" +
+            track.ScanTimeString +
+            "</td><td>" +
+            track.StatusDescription +
+            "</td><td>" +
+            track.Remark +
+            "</td></tr>"
+        ).join("")}</tbody>
+
+        </table>
+        <input type="button" value="Close this window" id="${index}" onclick="closeWind(this.id)">
+      </div>
+        </div>
+        `
+                  )
+                  .join("");
+                document.getElementById("match-list").innerHTML = html;
+              })();
+            });
+          };
+          fileReader.readAsBinaryString(selectedFile);
+        }
+      });
+    function MyFunc(id) {
+      $("#test" + id)
+        .toggleClass("is-shown--off-flow")
+        .toggleClass("is-hidden--off-flow");
+    }
+
+    function closeWind(id) {
+      $("#test" + id)
+        .toggleClass("is-shown--off-flow")
+        .toggleClass("is-hidden--off-flow");
+    }
+  </script>
+</html>
