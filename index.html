@@ -25,12 +25,12 @@
       Convert
     </button>
     <div hidden id="spinner"></div>
-    <div id="match-list"></div>
+    <div id="shipments-list"></div>
   </body>
   <script>
     var selectedFile;
-    var html = [];
-    var newArray = [];
+    var outputHtml = [];
+    var shipments = [];
     document
       .getElementById("fileUpload")
       .addEventListener("change", function (event) {
@@ -52,47 +52,47 @@
                 workbook.Sheets[sheet]
               );
               let jsonObject = JSON.stringify(rowObject);
-              var newData = JSON.parse(jsonObject);
-              let result = newData.map(({ Broj_paketa }) => Broj_paketa);
+              let parsedData = JSON.parse(jsonObject);
+              let result = parsedData.map(({ Broj_paketa }) => Broj_paketa);
               console.log(result);
               (async () => {
                 spinner.removeAttribute("hidden");
                 for (let i = 0; i < result.length; i++) {
-                  let value = result[i];
+                  let index = result[i];
                   let res = await fetch(
                     "https://my.overseas.hr/system/api/track-and-trace/get-shipment-data/" +
-                      value
+                      index
                   );
-                  let data = await res.json();
-                  newArray.push(data);
+                  let shipmentData = await res.json();
+                  shipments.push(shipmentData);
                 }
                 spinner.setAttribute("hidden", "");
-                html = newArray
+                outputHtml = shipments
                   .map(
-                    (match, index) => `
+                    (shipment, index) => `
         <div class="carc card-body mb-1">
-          <a href="#" class="js-modal-show" id="${index}" onClick="MyFunc(this.id)"> <h4> ${
-                      match.Ref2
+          <a href="#" class="js-modal-show" id="${index}" onClick="triggerPopup(this.id)"> <h4> ${
+                      shipment.Ref2
                     } </h4> </a> <h4> <span class="text-warning" id="Color${
-                      match.LastShipmentTrace.StatusNumber
-                    }">${match.StatusDescription}</span></h4>
+                      shipment.LastShipmentTrace.StatusNumber
+                    }">${shipment.StatusDescription}</span></h4>
         </div>
         <div class="l-modal is-hidden--off-flow js-modal-shopify" id="test${index}">
       <div class="l-modal__shadow js-modal-hide" id="hide${index}"></div>
       <div class="c-popup l-modal__body">
-        <div class="align-left"> Broj narudžbe: ${match.ShipmentNumber} </div>
-        <div class="align-right"> Datum slanja: ${match.SentOnDateString} </div>
-        <h5 class="c-popup__title">${match.Ref2}</h5>
+        <div class="align-left"> Broj narudžbe: ${shipment.ShipmentNumber} </div>
+        <div class="align-right"> Datum slanja: ${shipment.SentOnDateString} </div>
+        <h5 class="c-popup__title">${shipment.Ref2}</h5>
         <p class="c-popup__description"> Trenutno stanje: </p>
         <h5 class="c-popup__title1" id="align-left${index}"> ${
-                      match.StatusDescription
+                      shipment.StatusDescription
                     } </h5>
         <p class="c-popup__description"> ${
-          match.LastShipmentTrace.ScanDateString
-        }   ${match.LastShipmentTrace.ScanTimeString}</p>
-        <h6 class="c-popup__title">Primatelj: ${match.Consignee.PostalCode} ${
-                      match.Consignee.City
-                    }, ${match.Consignee.Country} </h6>
+          shipment.LastShipmentTrace.ScanDateString
+        }   ${shipment.LastShipmentTrace.ScanTimeString}</p>
+        <h6 class="c-popup__title">Primatelj: ${shipment.Consignee.PostalCode} ${
+                      shipment.Consignee.City
+                    }, ${shipment.Consignee.Country} </h6>
           <table class="table">
               <thead class="c-popup__description_table">
                   <tr>
@@ -101,7 +101,7 @@
                       <th scope="col"> Status </th>
                       <th scope="col"> Napomena </th>
                   </tr>
-        <tbody class="c-popup__description_table"> ${match.Collies[0].Traces.map(
+        <tbody class="c-popup__description_table"> ${shipment.Collies[0].Traces.map(
           (track) =>
             "<tr><td>" +
             track.ScanDateString +
@@ -115,26 +115,26 @@
         ).join("")}</tbody>
 
         </table>
-        <input type="button" value="Close this window" id="${index}" onclick="closeWind(this.id)">
+        <input type="button" value="Zatvori prozor" id="${index}" onclick="closePopup(this.id)">
       </div>
         </div>
         `
                   )
                   .join("");
-                document.getElementById("match-list").innerHTML = html;
+                document.getElementById("shipments-list").innerHTML = outputHtml;
               })();
             });
           };
           fileReader.readAsBinaryString(selectedFile);
         }
       });
-    function MyFunc(id) {
+    function triggerPopup(id) {
       $("#test" + id)
         .toggleClass("is-shown--off-flow")
         .toggleClass("is-hidden--off-flow");
     }
 
-    function closeWind(id) {
+    function closePopup(id) {
       $("#test" + id)
         .toggleClass("is-shown--off-flow")
         .toggleClass("is-hidden--off-flow");
