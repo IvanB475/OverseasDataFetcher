@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style.css" />
-    <title>Document</title>
+    <title>Overseas Shipment Data Fetcher</title>
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script
       type="text/javascript"
@@ -54,10 +54,10 @@
               let jsonObject = JSON.stringify(rowObject);
               let parsedData = JSON.parse(jsonObject);
               let result = parsedData.map(({ Broj_paketa }) => Broj_paketa);
-              console.log(result);
               (async () => {
                 spinner.removeAttribute("hidden");
                 for (let i = 0; i < result.length; i++) {
+                  console.log(result[i]);
                   let index = result[i];
                   let res = await fetch(
                     "https://my.overseas.hr/system/api/track-and-trace/get-shipment-data/" +
@@ -79,7 +79,7 @@
         </div>
         <div class="l-modal is-hidden--off-flow js-modal-shopify" id="test${index}">
       <div class="l-modal__shadow js-modal-hide" id="hide${index}"></div>
-      <div class="c-popup l-modal__body">
+      <div class="c-popup l-modal__body" id="classFinder${index}">
         <div class="align-left"> Broj narudžbe: ${shipment.ShipmentNumber} </div>
         <div class="align-right"> Datum slanja: ${shipment.SentOnDateString} </div>
         <h5 class="c-popup__title">${shipment.Ref2}</h5>
@@ -128,16 +128,32 @@
           fileReader.readAsBinaryString(selectedFile);
         }
       });
+
+
     function triggerPopup(id) {
-      $("#test" + id)
-        .toggleClass("is-shown--off-flow")
-        .toggleClass("is-hidden--off-flow");
+      let classElement = "#test" + id;
+      let element = document.getElementById("test" + id);
+      let checkAgainst = document.getElementById("classFinder" + id);
+      $(classElement)
+        .toggleClass("is-shown--off-flow", true)
+        .toggleClass("is-hidden--off-flow", false);
+        hideOnClickOutside(classElement, element, checkAgainst);
     }
 
     function closePopup(id) {
       $("#test" + id)
-        .toggleClass("is-shown--off-flow")
-        .toggleClass("is-hidden--off-flow");
+        .toggleClass("is-shown--off-flow", false)
+        .toggleClass("is-hidden--off-flow", true);
+    }
+
+    function hideOnClickOutside(classElement, element, checkAgainst) {
+    element.addEventListener("click", (event) => {
+      if (!checkAgainst.contains(event.target)) {
+          $(classElement)
+        .toggleClass("is-shown--off-flow", false)
+        .toggleClass("is-hidden--off-flow", true);
+      }
+    })
     }
   </script>
 </html>

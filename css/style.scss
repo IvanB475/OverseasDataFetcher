@@ -110,15 +110,6 @@ div {
   line-height: 1.48;
 }
 
-.c-popup__img {
-  max-width: 100px;
-  margin: 0 auto;
-  padding: 60px 60px 40px;
-}
-
-.h-img-resp {
-  max-width: 100%;
-}
 
 .c-popup__title {
   padding-left: 30px;
@@ -164,9 +155,34 @@ div {
   text-align: left;
   margin-left: 30px;
 }
-.c-popup__note {
-  opacity: 0.2;
-  font-size: 1em;
-  margin-top: 6px;
-  margin-bottom: 60px;
+
+.align-right {
+  color: black;
+  float: right;
+  margin-right: 10px;
+  display: block;
+}
+
+.tableClass {
+  border: 1px solid lightgrey;
+}
+
+.c-popup__description_table {
+  font-size: 0.8em;
+  color: #505050;
+  padding: 0;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+#Color41 {
+  color: green !important;
+}
+
+#Color40 {
+  color: palegreen !important;
+}
+
+#Color260 {
+  color: red !important;
 }
