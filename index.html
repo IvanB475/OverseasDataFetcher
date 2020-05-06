@@ -20,10 +20,12 @@
   </head>
 
   <body>
-    <input type="file" id="fileUpload" accept=".xls,.xlsx" /><br />
-    <button class="button-primary" type="button" id="uploadExcel">
-      Convert
-    </button>
+    <h5 id="inputTitle">Import Excel and designate column</h5>
+    <p id="fileUploadP"><input type="file" id="fileUpload" accept=".xls,.xlsx" /></p>
+    <p id="columnNumberP"><input type="text" id="columnNumber" size="12"  /> </p>
+    <p id="uploadExcelP"><button class="button-primary" type="button" id="uploadExcel">
+      Fetch Data
+    </button></p>
     <div hidden id="spinner"></div>
     <div id="shipments-list"></div>
   </body>
@@ -31,6 +33,7 @@
     var selectedFile;
     var outputHtml = [];
     var shipments = [];
+    let columnNumber; 
     document
       .getElementById("fileUpload")
       .addEventListener("change", function (event) {
@@ -40,6 +43,7 @@
       .getElementById("uploadExcel")
       .addEventListener("click", function () {
         if (selectedFile) {
+          assignColumnValue();
           var fileReader = new FileReader();
           fileReader.onload = function (event) {
             var data = event.target.result;
@@ -53,11 +57,12 @@
               );
               let jsonObject = JSON.stringify(rowObject);
               let parsedData = JSON.parse(jsonObject);
-              let result = parsedData.map(({ Broj_paketa }) => Broj_paketa);
+              let result = parsedData.map((opa) => 
+              Object.values(opa)[columnNumber]);
               (async () => {
                 spinner.removeAttribute("hidden");
                 for (let i = 0; i < result.length; i++) {
-                  console.log(result[i]);
+                  console.log(result[i])
                   let index = result[i];
                   let res = await fetch(
                     "https://my.overseas.hr/system/api/track-and-trace/get-shipment-data/" +
@@ -154,6 +159,21 @@
         .toggleClass("is-hidden--off-flow", true);
       }
     })
+    }
+
+    function assignColumnValue() {
+      columnNumber = document.getElementById("columnNumber").value - 1;
+      removeInputElements();
+    }
+    function removeInputElements() {
+      var removeInput = document.getElementById("columnNumberP");
+      var removeUploadFile = document.getElementById("fileUploadP");
+      var removeFetchButton = document.getElementById("uploadExcelP");
+      var removeTitle = document.getElementById("inputTitle");
+      removeInput.remove();
+      removeUploadFile.remove();
+      removeFetchButton.remove();
+      removeTitle.remove();
     }
   </script>
 </html>
